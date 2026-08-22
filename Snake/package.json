@@ -1,0 +1,10 @@
+{
+  "name": "lovehub-snake-3d",
+  "version": "0.3.0",
+  "private": true,
+  "description": "LoveHub Snake 3D — Sector Edition (Phase 3 Snake.io-style)",
+  "scripts": {
+    "start": "npx --yes serve -l 8080 .",
+    "dev": "npx --yes serve -l 8080 ."
+  }
+}

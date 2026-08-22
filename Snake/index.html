@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a1424">
+  <link rel="icon" href="data:,">
+  <title>LoveHub Snake 3D — Sector Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style id="boot-critical">
+    .hidden{display:none!important}
+    body{margin:0;background:#0a1424;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none}
+    .boost-btn{position:absolute;z-index:6;width:72px;height:72px;border-radius:50%;border:2px solid rgba(255,170,68,.5);background:rgba(255,140,40,.22);color:#ffd7a0;font-weight:800;font-size:11px;bottom:calc(28px + env(safe-area-inset-bottom,0px));right:calc(14px + env(safe-area-inset-right,0px));touch-action:none}
+    .boost-btn.active{background:rgba(255,140,40,.6);color:#fff}
+    .boost-btn.hidden{display:none!important}
+    .boost-btn.side-left{right:auto;left:calc(14px + env(safe-area-inset-left,0px))}
+  </style>
+  <link rel="stylesheet" href="./css/game.css">
+</head>
+<body>
+  <div id="game-root">
+    <div id="canvas-container"></div>
+    <div id="hit-flash"></div>
+    <div id="hud" class="hud hidden">
+      <div class="hud-top">
+        <div class="hud-score"><span class="label" data-i18n="score">Score</span><span id="score-value">0</span></div>
+        <div class="hud-mass"><span class="label" data-i18n="mass">Mass</span><span id="mass-value">6</span></div>
+        <div class="hud-xp"><span class="label">XP</span><span id="xp-value">0</span></div>
+        <div class="hud-plvl"><span class="label">Lv</span><span id="plvl-value">1</span></div>
+        <div class="hud-combo hidden" id="combo-display"><span id="combo-value">x1</span></div>
+        <div class="hud-tier hidden" id="hud-tier">SAFE</div>
+        <div class="hud-streak hidden" id="hud-streak">3x STREAK</div>
+        <div class="hud-level hidden" id="hud-level"><span id="level-label">Lv 1</span></div>
+        <div class="hud-timer hidden" id="hud-timer"><span id="timer-value">0</span></div>
+        <div class="hud-right"><button id="btn-pause" class="hud-btn">❚❚</button></div>
+      </div>
+      <div class="hud-goal-bar hidden" id="hud-goal-bar"><span id="hud-goal">Goal</span></div>
+      <div class="hud-fx">
+        <span id="fx-bite" class="fx-badge bite hidden">BITE</span>
+        <span id="fx-speed" class="fx-badge speed hidden">SPD</span>
+        <span id="fx-shield" class="fx-badge shield hidden">SHIELD</span>
+        <span id="fx-magnet" class="fx-badge magnet hidden">MAG</span>
+        <span id="fx-ghost" class="fx-badge ghost hidden">GHOST</span>
+        <span id="fx-mult" class="fx-badge mult hidden">x2</span>
+        <span id="fx-freeze" class="fx-badge freeze hidden">FRZ</span>
+        <span id="fx-gbite" class="fx-badge gbite hidden">G-BITE</span>
+        <span id="fx-xp" class="fx-badge xp hidden">2XP</span>
+        <span id="fx-venom" class="fx-badge venom hidden">VENOM</span>
+        <span id="fx-turbo" class="fx-badge turbo hidden">TURBO</span>
+        <span id="fx-slow" class="fx-badge slow hidden">SLOW</span>
+        <span id="fx-fortify" class="fx-badge fortify hidden">FORT</span>
+        <span class="fx-badge rivals">AI <span id="rivals-count">0</span></span>
+      </div>
+      <div class="hud-meta">
+        <span class="hud-dist">⇄ <span id="hud-distance">0</span></span>
+        <span id="hud-zone" class="hud-zone"></span>
+        <span id="hud-landmark" class="hud-landmark hidden"></span>
+        <span class="hud-coins-live">💰 <span id="hud-coins">0</span></span>
+      </div>
+      <div id="hud-toast" class="hud-toast hidden"></div>
+      <div id="hud-world-banner" class="hud-world-banner hidden"></div>
+      <div id="hud-event" class="hud-event hidden"></div>
+      <div id="hud-mission" class="hud-mission hidden"></div>
+    </div>
+    <div id="screen-menu" class="screen">
+      <div class="menu-content">
+        <div class="sector-badge">SECTOR</div>
+        <h1 class="game-title">SNAKE 3D</h1>
+        <p class="game-subtitle" data-i18n="subtitle">LoveHub Edition</p>
+        <div class="menu-buttons">
+          <button id="btn-play" class="btn btn-primary" data-i18n="play">PLAY</button>
+          <button id="btn-campaign" class="btn btn-secondary" data-i18n="campaign">CAMPAIGN</button>
+          <button id="btn-worlds" class="btn btn-secondary" data-i18n="worlds">WORLDS</button>
+          <button id="btn-settings" class="btn btn-ghost" data-i18n="settings">SETTINGS</button>
+        </div>
+        <div class="menu-stats">
+          <div class="stat"><span class="stat-value" id="best-score">0</span><span class="stat-label" data-i18n="best_score">Best</span></div>
+          <div class="stat"><span class="stat-value" id="player-level">1</span><span class="stat-label" data-i18n="level">Level</span></div>
+          <div class="stat"><span class="stat-value" id="coins">0</span><span class="stat-label" data-i18n="coins">Coins</span></div>
+        </div>
+        <div class="lang-switch">
+          <button id="btn-lang-en" class="lang-btn active">EN</button>
+          <button id="btn-lang-fa" class="lang-btn">فا</button>
+        </div>
+      </div>
+    </div>
+    <div id="screen-campaign" class="screen hidden"><div class="panel panel-wide"><h2 data-i18n="campaign">CAMPAIGN</h2><div id="level-list" class="level-list"></div><button id="btn-campaign-back" class="btn btn-ghost" data-i18n="back">BACK</button></div></div>
+    <div id="screen-worlds" class="screen hidden"><div class="panel panel-wide"><h2 data-i18n="worlds">WORLDS</h2><div id="world-grid" class="world-grid"></div><button id="btn-worlds-back" class="btn btn-ghost" data-i18n="back">BACK</button></div></div>
+    <div id="screen-settings" class="screen hidden"><div class="panel panel-wide">
+      <h2 data-i18n="settings">SETTINGS</h2>
+      <div class="setting-row"><span data-i18n="language">Language</span><div class="lang-switch"><button id="btn-set-en" class="lang-btn active">EN</button><button id="btn-set-fa" class="lang-btn">فا</button></div></div>
+      <div class="setting-section"><span class="setting-label">Snake Type</span><div id="skin-grid" class="skin-grid"></div></div>
+      <div class="setting-row"><span data-i18n="boost_side">Boost side</span><button id="btn-set-joy" class="btn btn-secondary btn-sm">LEFT / RIGHT</button></div>
+      <div class="setting-row"><span data-i18n="sensitivity">Sensitivity</span><input id="input-sens" type="range" min="50" max="150" value="100" /></div>
+      <div class="setting-row"><span>Quality</span><select id="select-quality" class="setting-select"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+      <div class="setting-row"><span>Floating Text</span><select id="select-float-text" class="setting-select"><option value="1">ON</option><option value="0">OFF</option></select></div>
+      <div class="setting-row"><span>Haptic</span><select id="select-haptic" class="setting-select"><option value="1">ON</option><option value="0">OFF</option></select></div>
+      <div class="setting-row"><span>SFX Volume</span><input id="input-sfx" type="range" min="0" max="100" value="70" /></div>
+      <div class="setting-row"><span>Master Volume</span><input id="input-master" type="range" min="0" max="100" value="70" /></div>
+      <button id="btn-settings-back" class="btn btn-ghost" data-i18n="back">BACK</button>
+    </div></div>
+    <div id="screen-pause" class="screen hidden"><div class="panel"><h2 data-i18n="paused">PAUSED</h2><button id="btn-resume" class="btn btn-primary" data-i18n="resume">RESUME</button><button id="btn-restart" class="btn btn-secondary" data-i18n="restart">RESTART</button><button id="btn-quit" class="btn btn-ghost" data-i18n="quit">QUIT</button></div></div>
+    <div id="screen-gameover" class="screen hidden"><div class="panel">
+      <h2 data-i18n="game_over">GAME OVER</h2>
+      <div class="result-score"><span class="label" data-i18n="score">Score</span><span id="final-score">0</span></div>
+      <div class="result-stats" id="go-stats">
+        <div class="rs"><span class="rs-l">Mass</span><span id="go-mass">0</span></div>
+        <div class="rs"><span class="rs-l">XP</span><span id="go-xp">0</span></div>
+        <div class="rs"><span class="rs-l">Coins</span><span id="go-coins">0</span></div>
+        <div class="rs"><span class="rs-l">Kills</span><span id="go-kills">0</span></div>
+        <div class="rs"><span class="rs-l">Dist</span><span id="go-dist">0</span></div>
+      </div>
+      <div class="result-best"><span data-i18n="best_score">Best</span>: <span id="final-best">0</span></div>
+      <button id="btn-retry" class="btn btn-primary" data-i18n="retry">RETRY</button>
+      <button id="btn-menu" class="btn btn-secondary" data-i18n="menu">MENU</button>
+    </div></div>
+    <div id="screen-levelclear" class="screen hidden"><div class="panel"><h2 data-i18n="level_clear">LEVEL CLEAR</h2><div class="result-score"><span class="label" data-i18n="score">Score</span><span id="clear-score">0</span></div><button id="btn-next-level" class="btn btn-primary" data-i18n="next_level">NEXT</button><button id="btn-clear-menu" class="btn btn-secondary" data-i18n="menu">MENU</button></div></div>
+    <div id="screen-loading" class="screen"><div class="loading-content"><div class="loading-snake"></div><div class="loading-bar"><div class="loading-fill" id="loading-fill"></div></div><p id="loading-tip" data-i18n="loading">Loading…</p></div></div>
+    <button id="btn-boost" class="boost-btn hidden" type="button">BOOST</button>
+  </div>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
