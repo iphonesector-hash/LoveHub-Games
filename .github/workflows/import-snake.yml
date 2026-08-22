@@ -1,0 +1,45 @@
+name: Import Snake into LoveHub-Games
+
+on:
+  push:
+    paths:
+      - '.github/workflows/import-snake.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-snake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout LoveHub-Games
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone canonical Snake repository
+        run: |
+          git clone --depth 1 https://github.com/iphonesector-hash/LoveHub-Snake3D-Sector.git /tmp/lovehub-snake
+
+      - name: Copy Snake into dedicated folder
+        run: |
+          rm -rf Snake
+          mkdir -p Snake
+          cp -a /tmp/lovehub-snake/. Snake/
+          rm -rf Snake/.git
+
+      - name: Remove temporary importer workflow
+        run: rm -f .github/workflows/import-snake.yml
+
+      - name: Commit imported game
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A Snake .github/workflows/import-snake.yml
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Import canonical Snake game into Snake folder"
+          git push origin HEAD:main
